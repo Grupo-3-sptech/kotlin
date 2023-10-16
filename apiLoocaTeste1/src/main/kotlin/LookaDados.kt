@@ -486,7 +486,7 @@ VALUES ('Modelo A', '${looca.processador.fabricante}', 1, '$id');
                         "        componente = componentes[i]\n" +
                         "\n" +
                         "    \n" +
-                        "        query = \"INSERT INTO Registros (dado, fkRoboRegistro, fkComponente, HorarioDado) VALUES (%s, 1, %s, %s)\"\n" +
+                        "        query = \"INSERT INTO Registros (dado, fkRoboRegistro, fkComponente, HorarioDado) VALUES (%s, $roboId %s, %s)\"\n" +
                         "\n" +
                         "    \n" +
                         "        cursor.execute(query, (dado, componente,horarioFormatado))\n" +
