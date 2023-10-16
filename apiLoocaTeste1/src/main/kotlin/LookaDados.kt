@@ -273,6 +273,12 @@ VALUES ('Modelo A', '${looca.processador.fabricante}', 1, '$id');
     }
 
     fun solucao() {
+        val roboId = bdInter.queryForObject(
+            """
+    select idRobo from RoboCirurgiao where idProcess = '$id'
+    """,
+            Int::class.java,
+        )
 
 
         var os: String = looca.sistema.sistemaOperacional
@@ -317,7 +323,7 @@ VALUES ('Modelo A', '${looca.processador.fabricante}', 1, '$id');
                         "    )\n" +
                         "    return connection\n" +
                         "\n" +
-                        "connection = mysql_connection('localhost', 'root', 'suasenha', 'MedConnect')\n" +
+                        "connection = mysql_connection('localhost', 'root', 'enzo123', 'MedConnect')\n" +
                         "\n" +
                         "while True:\n" +
                         "    memoria = psutil.virtual_memory()[2]\n" +
@@ -361,7 +367,7 @@ VALUES ('Modelo A', '${looca.processador.fabricante}', 1, '$id');
                         "        componente = componentes[i]\n" +
                         "\n" +
                         "    \n" +
-                        "        query = \"INSERT INTO Registros (dado, fkRoboRegistro, fkComponente, HorarioDado) VALUES (%s, 1, %s, %s)\"\n" +
+                        "        query = \"INSERT INTO Registros (dado, fkRoboRegistro, fkComponente, HorarioDado) VALUES (%s, $roboId, %s, %s)\"\n" +
                         "\n" +
                         "    \n" +
                         "        cursor.execute(query, (dado, componente,horarioFormatado))\n" +
