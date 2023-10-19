@@ -29,7 +29,7 @@ class LookaDados {
         val serverName = "localhost"
         val mydatabase = "medconnect"
         dataSource.username = "root"
-        dataSource.password = "enzo123"
+        dataSource.password = "5505"
         dataSource.url = "jdbc:mysql://$serverName/$mydatabase"
         bdInter = JdbcTemplate(dataSource)
     }
@@ -70,14 +70,14 @@ class LookaDados {
     fun cadastroUsu() {
         var autorizacao = false
 
-        var id: Int = JOptionPane.showInputDialog("insira o ID dado pelo técnico de TI").toInt()
+        var email: String = JOptionPane.showInputDialog("insira o seu email")
         var senha: String = JOptionPane.showInputDialog("insira sua senha")
 
 
         var usu = bdInter.queryForObject(
             """
     select fkHospital from Funcionarios
-    where idFuncionarios = $id AND senha = '$senha'
+    where email = '$email' AND senha = '$senha'
     """,
             Int::class.java,
 
@@ -244,6 +244,7 @@ VALUES ('Modelo A', '${looca.processador.fabricante}', 1, '$id');
         var nome = discos[0].nome
 
         var serial = discos[0].serial
+
     }
 
     fun grupoDeServicos() {
