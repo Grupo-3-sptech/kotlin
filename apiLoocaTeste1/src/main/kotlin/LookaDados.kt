@@ -9,14 +9,17 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import javax.swing.JOptionPane
 import java.io.File
+import kotlin.concurrent.thread
 
 fun main() {
     val looka1 = LookaDados()
     looka1.all()
 }
+
 class LookaDados {
     val looca = Looca()
     val bdInter: JdbcTemplate
+
     //id do processador de placeholder por enquanto.
     var id = Looca().processador.id
 
@@ -37,16 +40,19 @@ class LookaDados {
 
 
         if (aPrimeiraVez == false) {
-            python()
-            sistema()
-            memoria()
-            processador()
-            grupoDeDiscos()
-            grupoDeServicos()
-            grupoDeProcessos()
-            Dispositivo()
-            rede()
-            janelas()
+            while (true) {
+                //   python()
+                sistema()
+                memoria()
+                processador()
+                grupoDeDiscos()
+                grupoDeServicos()
+                grupoDeProcessos()
+                Dispositivo()
+                rede()
+                janelas()
+                Thread.sleep(20 * 1000)
+            }
         } else {
             cadastroUsu()
         }
@@ -54,11 +60,11 @@ class LookaDados {
 
     }
 
-    fun python(){
-        var arqPyConn = "SolucaoConn.py"
-        var pyExec: Process? = null
-        pyExec = Runtime.getRuntime().exec("python $arqPyConn")
-    }
+    //fun python(){
+    //var arqPyConn = "SolucaoConn.py"
+    //var pyExec: Process? = null
+    //pyExec = Runtime.getRuntime().exec("python $arqPyConn")
+    //}
 
 
     fun cadastroUsu() {
