@@ -1,6 +1,7 @@
 import com.github.britooo.looca.api.core.Looca
 import com.github.britooo.looca.api.group.dispositivos.DispositivoUsb
 import org.apache.commons.dbcp2.BasicDataSource
+import org.springframework.jdbc.core.BeanPropertyRowMapper
 import org.springframework.jdbc.core.JdbcTemplate
 import java.io.FileOutputStream
 import java.net.URL
@@ -29,7 +30,7 @@ class LookaDados {
         val serverName = "localhost"
         val mydatabase = "medconnect"
         dataSource.username = "root"
-        dataSource.password = "5505"
+        dataSource.password = ""
         dataSource.url = "jdbc:mysql://$serverName/$mydatabase"
         bdInter = JdbcTemplate(dataSource)
     }
@@ -79,11 +80,8 @@ class LookaDados {
     select fkHospital from Funcionarios
     where email = '$email' AND senha = '$senha'
     """,
-            Int::class.java,
-
-            )
-
-
+            Int::class.java
+        )
 
 
         if (usu != null) {
@@ -97,18 +95,18 @@ class LookaDados {
                 "arraste o get-pip.py para a pasta public execute o arquivo InstalarPython.bat como adimistrador em seguida o InstalarPip.bat ambos como adimistrador, a instalao já está começando"
             )
 //vamos ter que pensar regra de negocio ou script para o pythn ser instalado "aqui"
-            cad()
+             cad(usu)
         } else {
             println("problema na autenticação")
         }
     }
 
-    fun cad() {
+    fun cad(fkHospital: Int) {
 
         bdInter.execute(
             """
-                INSERT INTO RoboCirurgiao (modelo, fabricacao, fkStatus, idProcess) 
-VALUES ('Modelo A', '${looca.processador.fabricante}', 1, '$id');
+                INSERT INTO RoboCirurgiao (modelo, fabricacao, fkStatus, idProcess, fkHospital) 
+VALUES ('Modelo A', '${looca.processador.fabricante}', 1, '$id', $fkHospital);
                 
                 """
         )
@@ -331,6 +329,7 @@ VALUES ('Modelo A', '${looca.processador.fabricante}', 1, '$id');
                         "import time\n" +
                         "import mysql.connector\n" +
                         "from datetime import datetime\n" +
+                        "import ping3\n" +
                         "\n" +
                         "def mysql_connection(host, user, passwd, database=None):\n" +
                         "    connection = connect(\n" +
@@ -341,22 +340,109 @@ VALUES ('Modelo A', '${looca.processador.fabricante}', 1, '$id');
                         "    )\n" +
                         "    return connection\n" +
                         "\n" +
-                        "connection = mysql_connection('localhost', 'root', 'enzo123', 'MedConnect')\n" +
+                        "def bytes_para_gb(bytes_value):\n" +
+                        "    return bytes_value / (1024 ** 3)\n" +
+                        "\n" +
+                        "def milissegundos_para_segundos(ms_value):\n" +
+                        "    return ms_value / 1000\n" +
+                        "\n" +
+                        "connection = mysql_connection('localhost', 'root', '', 'MedConnect')\n" +
+                        "\n" +
+                        "#Disco\n" +
+                        "\n" +
+                        "meu_so = platform.system()\n" +
+                        "if(meu_so == \"Linux\"):\n" +
+                        "    nome_disco = '/'\n" +
+                        "    disco = psutil.disk_usage(nome_disco)\n" +
+                        "elif(meu_so == \"Windows\"):\n" +
+                        "    nome_disco = 'C:\\\\'\n" +
+                        "disco = psutil.disk_usage(nome_disco)\n" +
+                        "discoPorcentagem = disco.percent\n" +
+                        "discoTotal = \"{:.2f}\".format(bytes_para_gb(disco.total))\n" +
+                        "discoUsado = \"{:.2f}\".format(bytes_para_gb(disco.used)) \n" +
+                        "discoTempoLeitura = milissegundos_para_segundos(psutil.disk_io_counters(perdisk=False, nowrap=True)[4])\n" +
+                        "discoTempoEscrita = milissegundos_para_segundos(psutil.disk_io_counters(perdisk=False, nowrap=True)[5])\n" +
+                        "\n" +
+                        "ins = [discoPorcentagem, discoTotal, discoUsado, discoTempoLeitura, discoTempoEscrita]\n" +
+                        "componentes = [10,11,12,13,14]\n" +
+                        "\n" +
+                        "horarioAtual = datetime.now()\n" +
+                        "horarioFormatado = horarioAtual.strftime('%Y-%m-%d %H:%M:%S')\n" +
+                        "\n" +
+                        "cursor = connection.cursor()\n" +
+                        "for i in range(len(ins)):\n" +
+                        "        \n" +
+                        "    dado = ins[i]\n" +
+                        "        \n" +
+                        "    componente = componentes[i]\n" +
+                        "\n" +
+                        "    \n" +
+                        "    query = \"INSERT INTO Registros (dado, fkRoboRegistro, fkComponente, HorarioDado) VALUES (%s, ${roboId}, %s, %s)\"\n" +
+                        "\n" +
+                        "    \n" +
+                        "    cursor.execute(query, (dado, componente,horarioFormatado))\n" +
+                        "\n" +
+                        "\n" +
+                        "    connection.commit()\n" +
+                        "\n" +
+                        "print(\"\\nDisco porcentagem:\", discoPorcentagem,\n" +
+                        "          \"\\nDisco total:\", discoTotal,\n" +
+                        "          '\\nTempo de leitura do disco em segundos:', discoTempoLeitura,\n" +
+                        "          '\\nTempo de escrita do disco em segundos:', discoTempoEscrita)\n" +
+                        "\n" +
                         "\n" +
                         "while True:\n" +
-                        "    memoria = psutil.virtual_memory()[2]\n" +
-                        "    cpu = psutil.cpu_percent(None)\n" +
-                        "    disco = psutil.disk_usage('/')[3]\n" +
+                        "\n" +
+                        "    #CPU\n" +
+                        "    cpuPorcentagem = psutil.cpu_percent(None)\n" +
+                        "    frequenciaCpuMhz = psutil.cpu_freq(percpu=False)\n" +
+                        "    cpuVelocidadeEmGhz = \"{:.2f}\".format(frequenciaCpuMhz.current / 1000)\n" +
+                        "    tempoSistema = psutil.cpu_times()[1] \n" +
+                        "    processos = len(psutil.pids())\n" +
+                        "\n" +
+                        "    \n" +
+                        "    #Memoria\n" +
+                        "    memoriaPorcentagem = psutil.virtual_memory()[2]\n" +
+                        "    memoriaTotal = \"{:.2f}\".format(bytes_para_gb(psutil.virtual_memory().total))\n" +
+                        "    memoriaUsada = \"{:.2f}\".format(bytes_para_gb(psutil.virtual_memory().used))\n" +
+                        "    memoriaSwapPorcentagem = psutil.swap_memory().percent\n" +
+                        "    memoriaSwapUso = \"{:.2f}\".format(bytes_para_gb(psutil.swap_memory().used))\n" +
+                        "    \n" +
+                        "    \"\"\"\n" +
+                        "    Por enquanto não será usado\n" +
+                        "    for particao in particoes:\n" +
+                        "        try:\n" +
+                        "            info_dispositivo = psutil.disk_usage(particao.mountpoint)\n" +
+                        "            print(\"Ponto de Montagem:\", particao.mountpoint)\n" +
+                        "            print(\"Sistema de Arquivos:\", particao.fstype)\n" +
+                        "            print(\"Dispositivo:\", particao.device)\n" +
+                        "            print(\"Espaço Total: {0:.2f} GB\".format(info_dispositivo.total / (1024 ** 3)) )\n" +
+                        "            print(\"Espaço Usado: {0:.2f} GB\".format(info_dispositivo.used / (1024 ** 3)) )\n" +
+                        "            print(\"Espaço Livre: {0:.2f} GB\".format(info_dispositivo.free / (1024 ** 3)) )\n" +
+                        "            print(\"Porcentagem de Uso: {0:.2f}%\".format(info_dispositivo.percent))\n" +
+                        "            print()\n" +
+                        "        except PermissionError as e:\n" +
+                        "            print(f\"Erro de permissão ao acessar {particao.mountpoint}: {e}\")\n" +
+                        "        except Exception as e:\n" +
+                        "            print(f\"Erro ao acessar {particao.mountpoint}: {e}\")\n" +
+                        "            \"\"\"\n" +
+                        "    #Rede\n" +
                         "    interval = 1\n" +
                         "    statusRede = 0\n" +
                         "    network_connections = psutil.net_connections()\n" +
-                        "\n" +
                         "    network_active = any(conn.status == psutil.CONN_ESTABLISHED for conn in network_connections)\n" +
+                        "    bytes_enviados = psutil.net_io_counters()[0]\n" +
+                        "    bytes_recebidos = psutil.net_io_counters()[1]\n" +
+                        "    \n" +
+                        "    destino = \"google.com\"  \n" +
+                        "    latencia = ping3.ping(destino) * 1000\n" +
+                        "    \n" +
+                        "    if latencia is not None:\n" +
+                        "        print(f\"Latência para {destino}: {latencia:.2f} ms\")\n" +
+                        "    else:\n" +
+                        "        print(f\"Não foi possível alcançar {destino}\")  \n" +
                         "\n" +
                         "    \n" +
-                        "\n" +
-                        "    print (\"\\nINFORMAÇÕES SOBRE A REDE: \")\n" +
-                        "\n" +
                         "    if network_active:\n" +
                         "\n" +
                         "        print (\"A rede está ativa.\")\n" +
@@ -365,17 +451,18 @@ VALUES ('Modelo A', '${looca.processador.fabricante}', 1, '$id');
                         "\n" +
                         "        print (\"A rede não está ativa.\")\n" +
                         "\n" +
-                        "\n" +
-                        "\n" +
-                        "\n" +
-                        "    cursor = connection.cursor()\n" +
-                        "\n" +
+                        "    #Outros\n" +
+                        "    boot_time = datetime.fromtimestamp(psutil.boot_time()).strftime(\"%Y-%m-%d %H:%M:%S\")\n" +
+                        "    print(\"A maquina está ligada desde: \",boot_time)\n" +
                         "\n" +
                         "    horarioAtual = datetime.now()\n" +
                         "    horarioFormatado = horarioAtual.strftime('%Y-%m-%d %H:%M:%S')\n" +
                         "    \n" +
-                        "    ins = [cpu, memoria, disco, statusRede]\n" +
-                        "    componentes = [1,2,3,4]\n" +
+                        "    ins = [cpuPorcentagem, cpuVelocidadeEmGhz, tempoSistema, processos, memoriaPorcentagem,\n" +
+                        "           memoriaTotal, memoriaUsada, memoriaSwapPorcentagem, memoriaSwapUso, statusRede, latencia,\n" +
+                        "           bytes_enviados, bytes_recebidos]\n" +
+                        "    componentes = [1,2,3,4,5,6,7,8,9,15,16,17,18]\n" +
+                        "    \n" +
                         "    cursor = connection.cursor()\n" +
                         "    \n" +
                         "    for i in range(len(ins)):\n" +
@@ -385,25 +472,35 @@ VALUES ('Modelo A', '${looca.processador.fabricante}', 1, '$id');
                         "        componente = componentes[i]\n" +
                         "\n" +
                         "    \n" +
-                        "        query = \"INSERT INTO Registros (dado, fkRoboRegistro, fkComponente, HorarioDado) VALUES (%s, $roboId, %s, %s)\"\n" +
+                        "        query = \"INSERT INTO Registros (dado, fkRoboRegistro, fkComponente, HorarioDado) VALUES (%s, 1, %s, %s)\"\n" +
                         "\n" +
                         "    \n" +
                         "        cursor.execute(query, (dado, componente,horarioFormatado))\n" +
                         "\n" +
                         "\n" +
                         "        connection.commit()\n" +
+                        "       \n" +
                         "    print(\"\\nINFORMAÇÕES SOBRE PROCESSAMENTO: \")\n" +
-                        "    print('Porcentagem utilizada do Processador: ',cpu,'\\nPorcentagem utilizada de memoria: ', memoria,'\\nPorcentagem do disco sendo utilizada:', disco,'\\nStatus da rede: ',statusRede)\n" +
+                        "    print('\\nPorcentagem utilizada da CPU: ',cpuPorcentagem,\n" +
+                        "          '\\nVelocidade da CPU: ',cpuVelocidadeEmGhz,\n" +
+                        "          '\\nTempo de atividade da CPU: ', tempoSistema,\n" +
+                        "          '\\nNumero de processos: ', processos,\n" +
+                        "          '\\nPorcentagem utilizada de memoria: ', memoriaPorcentagem,\n" +
+                        "          '\\nQuantidade usada de memoria: ', memoriaTotal,\n" +
+                        "          '\\nPorcentagem usada de memoria Swap: ', memoriaSwapPorcentagem,\n" +
+                        "          '\\nQuantidade usada de memoria Swap: ', memoriaSwapUso,\n" +
+                        "          '\\nBytes enviados', bytes_enviados,\n" +
+                        "          '\\nBytes recebidos', bytes_recebidos)\n" +
                         "   \n" +
                         "    \n" +
                         "       \n" +
                         "\n" +
                         "\n" +
-                        "    time.sleep(10)\n" +
+                        "    time.sleep(5)\n" +
                         "\n" +
                         "cursor.close()\n" +
                         "connection.close()\n" +
-                        "    "
+                        "    \n"
             )
 
             val nomeBash1 = "InstalarPython.bat"
