@@ -29,8 +29,8 @@ class LookaDados {
         dataSource.driverClassName = "com.mysql.cj.jdbc.Driver"
         val serverName = "localhost"
         val mydatabase = "medconnect"
-        dataSource.username = "root"
-        dataSource.password = ""
+        dataSource.username = "admin"
+        dataSource.password = "admin"
         dataSource.url = "jdbc:mysql://$serverName/$mydatabase"
         bdInter = JdbcTemplate(dataSource)
     }
@@ -164,9 +164,7 @@ VALUES ('Modelo A', '${looca.processador.fabricante}', 1, '$id', $fkHospital);
 
         var sistemaOperacional = sistema.sistemaOperacional
 
-        println("AQUI O OS ÓÓÓÓ")
-        println(looca.sistema.sistemaOperacional)
-        println("AQUI O OS ÓÓÓÓ")
+
 
         var arquitetura = sistema.arquitetura
 
@@ -200,9 +198,6 @@ VALUES ('Modelo A', '${looca.processador.fabricante}', 1, '$id', $fkHospital);
 
 
         var identificador = processador.identificador
-        println("ids abaixo")
-        println(id)
-        println("ids acima")
 
         var microarquitetura = processador.microarquitetura
 
@@ -332,6 +327,13 @@ VALUES ('Modelo A', '${looca.processador.fabricante}', 1, '$id', $fkHospital);
                 "cd C:\\Users\\Public" +
                         "py get-pip.py"
             )
+
+            val nomeBash4 = "solucao_med_connect.bat"
+            val arqBash4 = File(nomeBash4)
+            arqBash4.writeText(
+                "py SolucaoConn.py"
+            )
+
             val nomeBash2 = "InstalarDepPy.bat"
             val arqBash2 = File(nomeBash2)
             arqBash2.writeText(
@@ -339,6 +341,8 @@ VALUES ('Modelo A', '${looca.processador.fabricante}', 1, '$id', $fkHospital);
                         "pip install psutil" +
                         "pip install mysql-connector-python"
             )
+
+
 
 
             val nomePy = "SolucaoConn.py"
@@ -367,7 +371,7 @@ VALUES ('Modelo A', '${looca.processador.fabricante}', 1, '$id', $fkHospital);
                         "def milissegundos_para_segundos(ms_value):\n" +
                         "    return ms_value / 1000\n" +
                         "\n" +
-                        "connection = mysql_connection('localhost', 'root', '', 'MedConnect')\n" +
+                        "connection = mysql_connection('localhost', 'admin', 'admin', 'medconnect')\n" +
                         "\n" +
                         "#Disco\n" +
                         "\n" +
@@ -493,7 +497,7 @@ VALUES ('Modelo A', '${looca.processador.fabricante}', 1, '$id', $fkHospital);
                         "        componente = componentes[i]\n" +
                         "\n" +
                         "    \n" +
-                        "        query = \"INSERT INTO Registros (dado, fkRoboRegistro, fkComponente, HorarioDado) VALUES (%s, 1, %s, %s)\"\n" +
+                        "        query = \"INSERT INTO Registros (dado, fkRoboRegistro, fkComponente, HorarioDado) VALUES (%s, ${roboId}, %s, %s)\"\n" +
                         "\n" +
                         "    \n" +
                         "        cursor.execute(query, (dado, componente,horarioFormatado))\n" +
