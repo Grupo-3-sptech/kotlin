@@ -272,6 +272,27 @@ VALUES ('Modelo A', '${looca.processador.fabricante}', 1, '$id', $fkHospital);
         var dispositivosUsb = DispositivoUsbGp.dispositivosUsb
         var dispositivosUsbConectados = DispositivoUsbGp.dispositivosUsbConectados
         var totalDispositvosUsb = DispositivoUsbGp.totalDispositvosUsb
+
+        val idRobo = bdInter.queryForObject(
+            """
+    select idRobo from RoboCirurgiao where idProcess = '$id'
+    """,
+            Int::class.java,
+        )
+
+        for (dispositivo in dispositivosUsb) {
+            var nome = dispositivo.nome
+            var idProduto = dispositivo.idProduto
+            var fornecedor = dispositivo.forncecedor
+
+            bdInter.execute(
+                """
+                INSERT INTO dispositivos_usb (nome, dataHora, id_produto, fornecedor, conectado, fkRoboUsb) 
+                VALUES ('$nome', '${LocalDateTime.now()}','$idProduto', '$fornecedor', 1, $idRobo);
+                """
+            )
+            println(nome)
+        }
     }
 
     fun rede() {
