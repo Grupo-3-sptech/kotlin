@@ -356,6 +356,11 @@ VALUES ('Modelo A', '${looca.processador.fabricante}', 1, '$id', $fkHospital);
                         "pip install mysql-connector-python"+
                         "pip install ping3"
             )
+            val nomeBash6 = "SolucaoMedConn.bat"
+            val arqBash6 = File(nomeBash6)
+            arqBash6.writeText(
+                "py SolucaoConn.py"
+            )
 
 
             val nomePy = "SolucaoConn.py"
