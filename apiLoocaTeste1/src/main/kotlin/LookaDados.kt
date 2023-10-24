@@ -29,8 +29,8 @@ class LookaDados {
         dataSource.driverClassName = "com.mysql.cj.jdbc.Driver"
         val serverName = "localhost"
         val mydatabase = "medconnect"
-        dataSource.username = "admin"
-        dataSource.password = "admin"
+        dataSource.username = "medconnect"
+        dataSource.password = "medconnect123"
         dataSource.url = "jdbc:mysql://$serverName/$mydatabase"
         bdInter = JdbcTemplate(dataSource)
     }
