@@ -268,24 +268,38 @@ VALUES ('Modelo A', '${looca.processador.fabricante}', 1, '$id', $fkHospital);
         var dispositivosUsbConectados = DispositivoUsbGp.dispositivosUsbConectados
         var totalDispositvosUsb = DispositivoUsbGp.totalDispositvosUsb
 
-        val idRobo = bdInter.queryForObject(
-            """
-    select idRobo from RoboCirurgiao where idProcess = '$id'
-    """,
-            Int::class.java,
-        )
+        val nomesConectados = mutableListOf<String>()
+        val resultSet = bdInter.queryForObject("SELECT DISTINCT nome FROM dispositivos_usb;")Int::class.java,
+
+        while (resultSet.next()) {
+            val nome = resultSet.getString("nome")
+            nomesConectados.add(nome)
+        }
 
         for (dispositivo in dispositivosUsb) {
-            var nome = dispositivo.nome
-            var idProduto = dispositivo.idProduto
-            var fornecedor = dispositivo.forncecedor
+            val nome = dispositivo.nome
+            val idProduto = dispositivo.idProduto
+            val fornecedor = dispositivo.forncecedor
 
-            bdInter.execute(
-                """
-                INSERT INTO dispositivos_usb (nome, dataHora, id_produto, fornecedor, conectado, fkRoboUsb) 
-                VALUES ('$nome', '${LocalDateTime.now()}','$idProduto', '$fornecedor', 1, $idRobo);
-                """
-            )
+            if (nomesConectados.contains(nome)) {
+                // Realize a inserção normal
+                bdInter.execute(
+                    """
+            INSERT INTO dispositivos_usb (nome, dataHora, id_produto, fornecedor, conectado, fkRoboUsb)
+            VALUES ('$nome', '${LocalDateTime.now()}', '$idProduto', '$fornecedor', 1, $idRobo);
+            """
+                )
+            } else {
+                // Atualize o campo conectado para 0
+                bdInter.execute(
+                    """
+            UPDATE dispositivos_usb
+            SET conectado = 0
+            WHERE nome = '$nome';
+            """
+                )
+            }
+
             println(nome)
         }
     }
