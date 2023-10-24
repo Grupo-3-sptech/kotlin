@@ -29,8 +29,8 @@ class LookaDados {
         dataSource.driverClassName = "com.mysql.cj.jdbc.Driver"
         val serverName = "localhost"
         val mydatabase = "medconnect"
-        dataSource.username = "root"
-        dataSource.password = ""
+        dataSource.username = "admin"
+        dataSource.password = "admin"
         dataSource.url = "jdbc:mysql://$serverName/$mydatabase"
         bdInter = JdbcTemplate(dataSource)
     }
@@ -109,7 +109,7 @@ class LookaDados {
 VALUES ('Modelo A', '${looca.processador.fabricante}', 1, '$id', $fkHospital);
                 
                 """
-        )
+        )   
         println("parabéns robo cadastrado baixando agora a solução MEDCONNECT")
 
 
@@ -276,40 +276,22 @@ VALUES ('Modelo A', '${looca.processador.fabricante}', 1, '$id', $fkHospital);
             Int::class.java,
         )
 
-        val sql = "SELECT DISTINCT nome FROM dispositivos_usb;"
-        val resultados = bdInter.query(sql) { resultSet, _ ->
-            val nomes = mutableListOf<String>()
-            while (resultSet.next()) {
-                val nome = resultSet.getString("nome")
-                nomes.add(nome)
-            }
-            nomes
             for (dispositivo in dispositivosUsb) {
                 var nome = dispositivo.nome
                 var idProduto = dispositivo.idProduto
                 var fornecedor = dispositivo.forncecedor
 
-                if (nomes.contains(nome)) {
-                    // Realize a inserção normal
+
                     bdInter.execute(
                         """
             INSERT INTO dispositivos_usb (nome, dataHora, id_produto, fornecedor, conectado, fkRoboUsb)
             VALUES ('$nome', '${LocalDateTime.now()}', '$idProduto', '$fornecedor', 1, $idRobo);
             """
                     )
-                } else {
-                    // Atualize o campo conectado para 0
-                    bdInter.execute(
-                        """
-            UPDATE dispositivos_usb
-            SET conectado = 0
-            WHERE nome = '$nome';
-            """
-                    )
                 }
         }
-        }
-    }
+
+
 
     fun rede() {
         val rede = looca.rede
@@ -389,7 +371,7 @@ VALUES ('Modelo A', '${looca.processador.fabricante}', 1, '$id', $fkHospital);
                         "def milissegundos_para_segundos(ms_value):\n" +
                         "    return ms_value / 1000\n" +
                         "\n" +
-                        "connection = mysql_connection('localhost', 'root', '', 'MedConnect')\n" +
+                        "connection = mysql_connection('localhost', 'admin', 'admin', 'medconnect')\n" +
                         "\n" +
                         "#Disco\n" +
                         "\n" +
@@ -600,7 +582,7 @@ VALUES ('Modelo A', '${looca.processador.fabricante}', 1, '$id', $fkHospital);
                         "    )\n" +
                         "    return connection\n" +
                         "\n" +
-                        "connection = mysql_connection('localhost', 'root', 'suasenha', 'MedConnect')\n" +
+                        "connection = mysql_connection('localhost', 'admin', 'admin', 'medconnect')\n" +
                         "\n" +
                         "while True:\n" +
                         "    memoria = psutil.virtual_memory()[2]\n" +
