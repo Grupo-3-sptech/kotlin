@@ -1,0 +1,1 @@
+cd C:\Users\Publicpy get-pip.py

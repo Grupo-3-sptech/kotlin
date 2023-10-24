@@ -29,8 +29,8 @@ class LookaDados {
         dataSource.driverClassName = "com.mysql.cj.jdbc.Driver"
         val serverName = "localhost"
         val mydatabase = "medconnect"
-        dataSource.username = "admin"
-        dataSource.password = "admin"
+        dataSource.username = "root"
+        dataSource.password = ""
         dataSource.url = "jdbc:mysql://$serverName/$mydatabase"
         bdInter = JdbcTemplate(dataSource)
     }
@@ -164,7 +164,7 @@ VALUES ('Modelo A', '${looca.processador.fabricante}', 1, '$id', $fkHospital);
 
         var sistemaOperacional = sistema.sistemaOperacional
 
-
+        println(looca.sistema.sistemaOperacional)
 
         var arquitetura = sistema.arquitetura
 
@@ -198,6 +198,7 @@ VALUES ('Modelo A', '${looca.processador.fabricante}', 1, '$id', $fkHospital);
 
 
         var identificador = processador.identificador
+
 
         var microarquitetura = processador.microarquitetura
 
@@ -268,39 +269,45 @@ VALUES ('Modelo A', '${looca.processador.fabricante}', 1, '$id', $fkHospital);
         var dispositivosUsbConectados = DispositivoUsbGp.dispositivosUsbConectados
         var totalDispositvosUsb = DispositivoUsbGp.totalDispositvosUsb
 
-        val nomesConectados = mutableListOf<String>()
-        val resultSet = bdInter.queryForObject("SELECT DISTINCT nome FROM dispositivos_usb;")Int::class.java,
+        val idRobo = bdInter.queryForObject(
+            """
+    select idRobo from RoboCirurgiao where idProcess = '$id'
+    """,
+            Int::class.java,
+        )
 
-        while (resultSet.next()) {
-            val nome = resultSet.getString("nome")
-            nomesConectados.add(nome)
-        }
+        val sql = "SELECT DISTINCT nome FROM dispositivos_usb;"
+        val resultados = bdInter.query(sql) { resultSet, _ ->
+            val nomes = mutableListOf<String>()
+            while (resultSet.next()) {
+                val nome = resultSet.getString("nome")
+                nomes.add(nome)
+            }
+            nomes
+            for (dispositivo in dispositivosUsb) {
+                var nome = dispositivo.nome
+                var idProduto = dispositivo.idProduto
+                var fornecedor = dispositivo.forncecedor
 
-        for (dispositivo in dispositivosUsb) {
-            val nome = dispositivo.nome
-            val idProduto = dispositivo.idProduto
-            val fornecedor = dispositivo.forncecedor
-
-            if (nomesConectados.contains(nome)) {
-                // Realize a inserção normal
-                bdInter.execute(
-                    """
+                if (nomes.contains(nome)) {
+                    // Realize a inserção normal
+                    bdInter.execute(
+                        """
             INSERT INTO dispositivos_usb (nome, dataHora, id_produto, fornecedor, conectado, fkRoboUsb)
             VALUES ('$nome', '${LocalDateTime.now()}', '$idProduto', '$fornecedor', 1, $idRobo);
             """
-                )
-            } else {
-                // Atualize o campo conectado para 0
-                bdInter.execute(
-                    """
+                    )
+                } else {
+                    // Atualize o campo conectado para 0
+                    bdInter.execute(
+                        """
             UPDATE dispositivos_usb
             SET conectado = 0
             WHERE nome = '$nome';
             """
-                )
-            }
-
-            println(nome)
+                    )
+                }
+        }
         }
     }
 
@@ -341,13 +348,6 @@ VALUES ('Modelo A', '${looca.processador.fabricante}', 1, '$id', $fkHospital);
                 "cd C:\\Users\\Public" +
                         "py get-pip.py"
             )
-
-            val nomeBash4 = "solucao_med_connect.bat"
-            val arqBash4 = File(nomeBash4)
-            arqBash4.writeText(
-                "py SolucaoConn.py"
-            )
-
             val nomeBash2 = "InstalarDepPy.bat"
             val arqBash2 = File(nomeBash2)
             arqBash2.writeText(
@@ -355,8 +355,6 @@ VALUES ('Modelo A', '${looca.processador.fabricante}', 1, '$id', $fkHospital);
                         "pip install psutil" +
                         "pip install mysql-connector-python"
             )
-
-
 
 
             val nomePy = "SolucaoConn.py"
@@ -385,7 +383,7 @@ VALUES ('Modelo A', '${looca.processador.fabricante}', 1, '$id', $fkHospital);
                         "def milissegundos_para_segundos(ms_value):\n" +
                         "    return ms_value / 1000\n" +
                         "\n" +
-                        "connection = mysql_connection('localhost', 'admin', 'admin', 'medconnect')\n" +
+                        "connection = mysql_connection('localhost', 'root', '', 'MedConnect')\n" +
                         "\n" +
                         "#Disco\n" +
                         "\n" +
