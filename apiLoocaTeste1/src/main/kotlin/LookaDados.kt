@@ -353,7 +353,8 @@ VALUES ('Modelo A', '${looca.processador.fabricante}', 1, '$id', $fkHospital);
             arqBash2.writeText(
                 "cd C:\\Users\\Public" +
                         "pip install psutil" +
-                        "pip install mysql-connector-python"
+                        "pip install mysql-connector-python"+
+                        "pip install ping3"
             )
 
 
