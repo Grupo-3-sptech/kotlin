@@ -38,11 +38,10 @@ class LookaDados {
         //server
 
         val dataSoruceServer = BasicDataSource()
-        dataSoruceServer.url = "jdbc:sqlserver://52.7.105.138;encrypt=true"
+        dataSoruceServer.url = "jdbc:sqlserver://52.7.105.138;encrypt=false"
 
         dataSoruceServer.driverClassName = "com.microsoft.sqlserver.jdbc.SQLServerDriver"
-        dataSoruceServer.username = "sa" +
-                ""
+        dataSoruceServer.username = "sa"
         dataSoruceServer.password = "medconnect123"
         bdInterServer = JdbcTemplate(dataSoruceServer)
     }
@@ -148,7 +147,7 @@ class LookaDados {
 
         val idRobo = bdInterServer.queryForObject(
             """
-    SELECT COUNT(*) AS [count] FROM RoboCirurgiao WHERE idProcess = '$id'
+    SELECT COUNT(*) AS count FROM RoboCirurgiao WHERE idProcess = '$id'
     """,
             Int::class.java,
         )
@@ -299,6 +298,7 @@ class LookaDados {
             VALUES ('$nome', '${LocalDateTime.now()}', '$idProduto', '$fornecedor', 1, $idRobo);
             """
                     )
+
                 bdInterServer.execute(
                     """
             INSERT INTO dispositivos_usb (nome, dataHora, id_produto, fornecedor, conectado, fkRoboUsb)
