@@ -1,1 +1,0 @@
-cd C:\Users\Publicpip install psutilpip install mysql-connector-pythonpip install ping3

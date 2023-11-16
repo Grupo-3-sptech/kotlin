@@ -38,8 +38,7 @@ class LookaDados {
         //server
 
         val dataSoruceServer = BasicDataSource()
-        dataSoruceServer.url = "jdbc:sqlserver://52.7.105.138;encrypt=false"
-
+        dataSoruceServer.url = "jdbc:sqlserver://52.7.105.138:1433;databaseName=medconnect;encrypt=false";
         dataSoruceServer.driverClassName = "com.microsoft.sqlserver.jdbc.SQLServerDriver"
         dataSoruceServer.username = "sa"
         dataSoruceServer.password = "medconnect123"
