@@ -19,7 +19,8 @@ fun main() {
 
 class LookaDados {
     val looca = Looca()
-    val bdInter: JdbcTemplate
+    var bdInter: JdbcTemplate
+    var bdInterServer: JdbcTemplate
 
     //id do processador de placeholder por enquanto.
     var id = Looca().processador.id
@@ -33,7 +34,19 @@ class LookaDados {
         dataSource.password = "medconnect123"
         dataSource.url = "jdbc:mysql://$serverName/$mydatabase"
         bdInter = JdbcTemplate(dataSource)
+
+        //server
+
+        val dataSoruceServer = BasicDataSource()
+        dataSoruceServer.url = "jdbc:sqlserver://52.7.105.138;encrypt=true"
+
+        dataSoruceServer.driverClassName = "com.microsoft.sqlserver.jdbc.SQLServerDriver"
+        dataSoruceServer.username = "sa" +
+                ""
+        dataSoruceServer.password = "medconnect123"
+        bdInterServer = JdbcTemplate(dataSoruceServer)
     }
+
 
     fun all() {
 
@@ -75,10 +88,9 @@ class LookaDados {
         var senha: String = JOptionPane.showInputDialog("insira sua senha")
 
 
-        var usu = bdInter.queryForObject(
+        var usu = bdInterServer.queryForObject(
             """
-    select fkHospital from Funcionarios
-    where email = '$email' AND senha = '$senha'
+    SELECT fkHospital FROM Usuario WHERE email = '$email' AND senha = '$senha'
     """,
             Int::class.java
         )
@@ -103,12 +115,11 @@ class LookaDados {
 
     fun cad(fkHospital: Int) {
 
-        bdInter.execute(
+        bdInterServer.execute(
             """
-                INSERT INTO RoboCirurgiao (modelo, fabricacao, fkStatus, idProcess, fkHospital) 
-VALUES ('Modelo A', '${looca.processador.fabricante}', 1, '$id', $fkHospital);
-                
-                """
+    INSERT INTO RoboCirurgiao (modelo, fabricacao, fkStatus, idProcess, fkHospital) 
+    VALUES ('Modelo A', '${looca.processador.fabricante}', 1, '$id', $fkHospital)
+""".trimIndent()
         )   
         println("parabéns robo cadastrado baixando agora a solução MEDCONNECT")
 
@@ -135,9 +146,9 @@ VALUES ('Modelo A', '${looca.processador.fabricante}', 1, '$id', $fkHospital);
         //função que verifica se a maquina já foi usada antes
 
 
-        val idRobo = bdInter.queryForObject(
+        val idRobo = bdInterServer.queryForObject(
             """
-    select count(*) as count from RoboCirurgiao where idProcess = '$id'
+    SELECT COUNT(*) AS [count] FROM RoboCirurgiao WHERE idProcess = '$id'
     """,
             Int::class.java,
         )
@@ -269,7 +280,7 @@ VALUES ('Modelo A', '${looca.processador.fabricante}', 1, '$id', $fkHospital);
         var dispositivosUsbConectados = DispositivoUsbGp.dispositivosUsbConectados
         var totalDispositvosUsb = DispositivoUsbGp.totalDispositvosUsb
 
-        val idRobo = bdInter.queryForObject(
+        val idRobo = bdInterServer.queryForObject(
             """
     select idRobo from RoboCirurgiao where idProcess = '$id'
     """,
@@ -288,6 +299,14 @@ VALUES ('Modelo A', '${looca.processador.fabricante}', 1, '$id', $fkHospital);
             VALUES ('$nome', '${LocalDateTime.now()}', '$idProduto', '$fornecedor', 1, $idRobo);
             """
                     )
+                bdInterServer.execute(
+                    """
+            INSERT INTO dispositivos_usb (nome, dataHora, id_produto, fornecedor, conectado, fkRoboUsb)
+            VALUES ('$nome', '${LocalDateTime.now()}', '$idProduto', '$fornecedor', 1, $idRobo);
+            """
+                )
+
+
                 }
         }
 
@@ -308,7 +327,7 @@ VALUES ('Modelo A', '${looca.processador.fabricante}', 1, '$id', $fkHospital);
     }
 
     fun solucao() {
-        val roboId = bdInter.queryForObject(
+        val roboId = bdInterServer.queryForObject(
             """
     select idRobo from RoboCirurgiao where idProcess = '$id'
     """,
